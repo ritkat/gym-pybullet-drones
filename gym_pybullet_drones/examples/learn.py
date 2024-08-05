@@ -150,7 +150,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
     #     path = filename+'/best_model.zip'
     # else:
     #     print("[ERROR]: no model under the specified path", filename)
-    path = '/~/gym-pybullet-drones/results/save-'+rad+'/best_model'
+    path = '/home/ritwik/gym-pybullet-drones/results/save-'+rad+'/best_model'
     model = PPO.load(path)
 
     #### Show (and record a video of) the model's performance ##
