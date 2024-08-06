@@ -375,7 +375,8 @@ class Logger(object):
                             )
         
         plt.tight_layout()
+        random_number = int(np.random.rand() * 10000)  # Adjust the range as needed
         if self.COLAB: 
-            plt.savefig(os.path.join('results', 'output_figure.png'))
+            plt.savefig(os.path.join('results', str(random_number)+'output_figure.png'))
         else:
             plt.show()
