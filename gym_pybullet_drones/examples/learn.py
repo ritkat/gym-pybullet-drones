@@ -102,7 +102,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                 train_env,
                 # tensorboard_log=filename+'/tb/',
                 # policy_kwargs=policy_kargs,
-                learning_rate=0.000003,
+                learning_rate=0.00003,
                 verbose=1,
                 )                                                  ## ANNOT: Here the neural network maybe is being created (Actor.)
 
