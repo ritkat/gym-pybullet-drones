@@ -35,7 +35,7 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
 from gym_pybullet_drones.utils.Logger import Logger
-from gym_pybullet_drones.envs.HoverAviary import HoverAviary
+from gym_pybullet_drones.envs.HoverAviary import HoverAviary, HoverAviary_eval
 from gym_pybullet_drones.envs.MultiHoverAviary import MultiHoverAviary
 from gym_pybullet_drones.utils.utils import sync, str2bool
 from gym_pybullet_drones.utils.enums import ObservationType, ActionType
@@ -63,7 +63,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                                  n_envs=1,
                                  seed=0
                                  )
-        eval_env = HoverAviary(obs=DEFAULT_OBS, act=DEFAULT_ACT)
+        eval_env = HoverAviary_eval(obs=DEFAULT_OBS, act=DEFAULT_ACT)
     else:
         train_env = make_vec_env(MultiHoverAviary,
                                  env_kwargs=dict(num_drones=DEFAULT_AGENTS, obs=DEFAULT_OBS, act=DEFAULT_ACT),
@@ -122,7 +122,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                                  eval_freq=int(1000),
                                  deterministic=True,
                                  render=False)
-    model.learn(total_timesteps=int(15000000000) if local else int(1e2), # shorter training in GitHub Actions pytest
+    model.learn(total_timesteps=int(5000) if local else int(1e2), # shorter training in GitHub Actions pytest
                 callback=eval_callback,
                 log_interval=100)
 
@@ -150,7 +150,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
     #     path = filename+'/best_model.zip'
     # else:
     #     print("[ERROR]: no model under the specified path", filename)
-    path = '/home/ritwik/gym-pybullet-drones/results/save-'+rad+'/best_model'
+    path = '/content/gym-pybullet-drones/results/save-'+rad+'/best_model'
     model = PPO.load(path)
 
     #### Show (and record a video of) the model's performance ##
@@ -159,6 +159,8 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
         test_env = HoverAviary(gui=gui,
                                obs=DEFAULT_OBS,
                                act=DEFAULT_ACT,
+                            #    initial_xyzs=np.array([[0,0,1]]),
+                            #    target_pos = np.array([0,0,2]),
                                record=record_video)
         test_env_nogui = HoverAviary(obs=DEFAULT_OBS, act=DEFAULT_ACT)
     else:
