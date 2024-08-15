@@ -12,7 +12,6 @@ class HoverAviary(BaseRLAviary):
                  drone_model: DroneModel=DroneModel.CF2X,
                  initial_xyzs=None,
                  initial_rpys=None,
-                 target_pos=np.array([1,1,1]),
                  physics: Physics=Physics.PYB,
                  pyb_freq: int = 240,
                  ctrl_freq: int = 30,
@@ -49,7 +48,7 @@ class HoverAviary(BaseRLAviary):
             The type of action space (1 or 3D; RPMS, thurst and torques, or waypoint with PID control)
 
         """
-        self.TARGET_POS = target_pos
+        self.TARGET_POS = np.array([1,1,1])
         self.EPISODE_LEN_SEC = 8
         super().__init__(drone_model=drone_model,
                          num_drones=1,
@@ -131,7 +130,7 @@ class HoverAviary(BaseRLAviary):
 
         """
         return {"answer": 42} #### Calculated by the Deep Thought supercomputer in 7.5M years
-    
+
 class HoverAviary_eval(HoverAviary):
 
     def __init__(self,
@@ -148,6 +147,7 @@ class HoverAviary_eval(HoverAviary):
                  act: ActionType=ActionType.RPM
                  ):
         
+        self.counter = 0
         self.TARGET_POS = target_pos
         self.EPISODE_LEN_SEC = 8        
         super().__init__(
@@ -192,6 +192,27 @@ class HoverAviary_eval(HoverAviary):
         # else:
         return False
         
+    ################################################################################
+
+    def _startVideoRecording(self):
+        """Starts the recording of a video output.
+
+        The format of the video output is .mp4, if GUI is True, or .png, otherwise.
+
+        """
+        self.counter += 1
+        print(f"Video called {self.counter} times.")
+        print("start ho rhi hai")
+        if self.RECORD and self.GUI:
+            self.VIDEO_ID = p.startStateLogging(loggingType=p.STATE_LOGGING_VIDEO_MP4,
+                                                fileName=os.path.join(self.OUTPUT_FOLDER, "video-"+datetime.now().strftime("%m.%d.%Y_%H.%M.%S")+".mp4"),
+                                                physicsClientId=self.CLIENT
+                                                )
+        if self.RECORD and not self.GUI:
+            self.FRAME_NUM = 0
+            self.IMG_PATH = os.path.join(self.OUTPUT_FOLDER, "recording_" + datetime.now().strftime("%m.%d.%Y_%H.%M.%S"), '')
+            os.makedirs(os.path.dirname(self.IMG_PATH), exist_ok=True)
+    
     ################################################################################
 
     ################################################################################
