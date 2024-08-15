@@ -150,14 +150,7 @@ class HoverAviary_eval(HoverAviary):
         
         self.TARGET_POS = target_pos
         self.EPISODE_LEN_SEC = 8        
-        super().__init__(drone_model=drone_model,
-                            num_drones=1,
-                            initial_xyzs=initial_xyzs,
-                            initial_rpys=initial_rpys,
-                            physics=physics,
-                            pyb_freq=pyb_freq,
-                            ctrl_freq=ctrl_freq,
-                            gui=gui,
+        super().__init__(
                             record=record,
                             obs=obs,
                             act=act
