@@ -212,7 +212,7 @@ class HoverAviary_eval(HoverAviary):
         if self.RECORD and not self.GUI:
             self.FRAME_NUM = 0
             self.IMG_PATH = os.path.join(self.OUTPUT_FOLDER, "recording_" + str(self.counter))
-            os.makedirs(os.path.dirname(self.IMG_PATH), exist_ok=True)
+            os.makedirs(self.IMG_PATH, exist_ok=True)
     
     ################################################################################
 
