@@ -202,8 +202,6 @@ class HoverAviary_eval(HoverAviary):
 
         """
         self.counter += 1
-        print(f"Video called {self.counter} times.")
-        print("start ho rhi hai")
         if self.RECORD and self.GUI:
             self.VIDEO_ID = p.startStateLogging(loggingType=p.STATE_LOGGING_VIDEO_MP4,
                                                 fileName=os.path.join(self.OUTPUT_FOLDER, "video-"+datetime.now().strftime("%m.%d.%Y_%H.%M.%S")+".mp4"),
