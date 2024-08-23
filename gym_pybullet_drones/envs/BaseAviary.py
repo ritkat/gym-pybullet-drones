@@ -147,7 +147,7 @@ class BaseAviary(gym.Env):
         #### Connect to PyBullet ###################################
         if self.GUI:
             #### With debug GUI ########################################
-            self.CLIENT = p.connect(p.GUI) # p.connect(p.GUI, options="--opengl2")
+            self.CLIENT = p.connect(p.GUI, options="--width=1280 --height=656") # p.connect(p.GUI, options="--opengl2")
             for i in [p.COV_ENABLE_RGB_BUFFER_PREVIEW, p.COV_ENABLE_DEPTH_BUFFER_PREVIEW, p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW]:
                 p.configureDebugVisualizer(i, 0, physicsClientId=self.CLIENT)
             p.resetDebugVisualizerCamera(cameraDistance=3,
@@ -156,6 +156,23 @@ class BaseAviary(gym.Env):
                                          cameraTargetPosition=[0, 0, 0],
                                          physicsClientId=self.CLIENT
                                          )
+            self.VID_WIDTH=int(640)
+            self.VID_HEIGHT=int(480)
+            self.FRAME_PER_SEC = 24
+            self.CAPTURE_FREQ = int(self.PYB_FREQ/self.FRAME_PER_SEC)
+            self.CAM_VIEW = p.computeViewMatrixFromYawPitchRoll(distance=3,
+                                                                yaw=-30,
+                                                                pitch=-30,
+                                                                roll=0,
+                                                                cameraTargetPosition=[0, 0, 0],
+                                                                upAxisIndex=2,
+                                                                physicsClientId=self.CLIENT
+                                                                )
+            self.CAM_PRO = p.computeProjectionMatrixFOV(fov=60.0,
+                                                        aspect=self.VID_WIDTH/self.VID_HEIGHT,
+                                                        nearVal=0.1,
+                                                        farVal=1000.0
+                                                        )
             ret = p.getDebugVisualizerCamera(physicsClientId=self.CLIENT)
             print("viewMatrix", ret[2])
             print("projectionMatrix", ret[3])
@@ -295,7 +312,7 @@ class BaseAviary(gym.Env):
                                                      shadow=1,
                                                      viewMatrix=self.CAM_VIEW,
                                                      projectionMatrix=self.CAM_PRO,
-                                                     renderer=p.ER_TINY_RENDERER,
+                                                     renderer=p.ER_BULLET_HARDWARE_OPENGL,
                                                      flags=p.ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX,
                                                      physicsClientId=self.CLIENT
                                                      )
@@ -462,6 +479,7 @@ class BaseAviary(gym.Env):
         self.X_AX = -1*np.ones(self.NUM_DRONES)
         self.Y_AX = -1*np.ones(self.NUM_DRONES)
         self.Z_AX = -1*np.ones(self.NUM_DRONES)
+        self.TARGET = -1*np.ones(self.NUM_DRONES)
         self.GUI_INPUT_TEXT = -1*np.ones(self.NUM_DRONES)
         self.USE_GUI_RPM=False
         self.last_input_switch = 0
@@ -489,6 +507,13 @@ class BaseAviary(gym.Env):
                                               flags = p.URDF_USE_INERTIA_FROM_FILE,
                                               physicsClientId=self.CLIENT
                                               ) for i in range(self.NUM_DRONES)])
+        p.addUserDebugPoints(
+                [[1,1,1]], [[1, 1, 1]], pointSize=3, lifeTime=5)
+        p.addUserDebugLine(lineFromXYZ=[0, 0, 0],
+                            lineToXYZ=[1, 1, 1],
+                            lineColorRGB=[1, 0, 0],
+                            physicsClientId=self.CLIENT
+                            )
         #### Remove default damping #################################
         # for i in range(self.NUM_DRONES):
         #     p.changeDynamics(self.DRONE_IDS[i], -1, linearDamping=0, angularDamping=0)
@@ -949,6 +974,14 @@ class BaseAviary(gym.Env):
                                                       replaceItemUniqueId=int(self.Z_AX[nth_drone]),
                                                       physicsClientId=self.CLIENT
                                                       )
+            self.TARGET[nth_drone] = p.addUserDebugLine(lineFromXYZ=[0, 0, 0],
+                            lineToXYZ=[1, 1, 1],
+                            lineColorRGB=[1, 0, 0],
+                            parentObjectUniqueId=self.DRONE_IDS[nth_drone],
+                            parentLinkIndex=-1,
+                            replaceItemUniqueId=int(self.TARGET[nth_drone]),
+                            physicsClientId=self.CLIENT
+                            )
     
     ################################################################################
 

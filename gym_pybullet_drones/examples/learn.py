@@ -35,11 +35,10 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
 from gym_pybullet_drones.utils.Logger import Logger
-from gym_pybullet_drones.envs.HoverAviary import HoverAviary, HoverAviary_eval
+from gym_pybullet_drones.envs.HoverAviary import HoverAviary, HoverAviary_eval, GLB_RANDOM
 from gym_pybullet_drones.envs.MultiHoverAviary import MultiHoverAviary
 from gym_pybullet_drones.utils.utils import sync, str2bool
 from gym_pybullet_drones.utils.enums import ObservationType, ActionType
-import random
 
 
 DEFAULT_GUI = False
@@ -51,9 +50,14 @@ DEFAULT_ACT = ActionType('rpm') # 'rpm' or 'pid' or 'vel' or 'one_d_rpm' or 'one
 DEFAULT_AGENTS = 2
 DEFAULT_MA = False
 
+os.environ['DISPLAY'] = '137.154.7.202:0.0'
+
+print(os.environ['DISPLAY'])
 def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_GUI, plot=True, colab=DEFAULT_COLAB, record_video=DEFAULT_RECORD_VIDEO, local=True):
-    rad = str(random.randint(1,5000000))
-    filename = os.path.join(output_folder, 'save-'+rad)
+    
+    filename = os.path.join(output_folder, 'save-'+GLB_RANDOM)
+    print("RANDOM GLOBAL VAR")
+    print(GLB_RANDOM)
     if not os.path.exists(filename):
         os.makedirs(filename+'/')
 
@@ -64,6 +68,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                                  seed=0
                                  )
         eval_env = HoverAviary_eval(obs=DEFAULT_OBS, act=DEFAULT_ACT)
+                                
     else:
         train_env = make_vec_env(MultiHoverAviary,
                                  env_kwargs=dict(num_drones=DEFAULT_AGENTS, obs=DEFAULT_OBS, act=DEFAULT_ACT),
@@ -103,7 +108,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                 # tensorboard_log=filename+'/tb/',
                 # policy_kwargs=policy_kargs,
                 learning_rate=0.00003,
-                verbose=1,
+                verbose=1
                 )                                                  ## ANNOT: Here the neural network maybe is being created (Actor.)
 
     #### Target cumulative rewards (problem-dependent) ##########
@@ -113,7 +118,6 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
         target_reward = 9467. if not multiagent else 920.
     callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=target_reward,
                                                      verbose=1)
-    print("Server error nhi")
     eval_callback = EvalCallback(eval_env,
                                  callback_on_new_best=callback_on_best,
                                  verbose=1,
@@ -122,7 +126,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
                                  eval_freq=int(1000),
                                  deterministic=True,
                                  render=False)
-    model.learn(total_timesteps=int(150000000) if local else int(1e2), # shorter training in GitHub Actions pytest
+    model.learn(total_timesteps=int(3000) if local else int(1e2), # shorter training in GitHub Actions pytest
                 callback=eval_callback,
                 log_interval=100)
 
@@ -150,7 +154,7 @@ def run(multiagent=DEFAULT_MA, output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_
     #     path = filename+'/best_model.zip'
     # else:
     #     print("[ERROR]: no model under the specified path", filename)
-    path = '/content/gym-pybullet-drones/results/save-'+rad+'/best_model'
+    path = 'results/save-'+GLB_RANDOM+'/best_model'
     model = PPO.load(path)
 
     #### Show (and record a video of) the model's performance ##

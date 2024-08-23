@@ -3,6 +3,11 @@ import os
 from datetime import datetime
 from gym_pybullet_drones.envs.BaseRLAviary import BaseRLAviary
 from gym_pybullet_drones.utils.enums import DroneModel, Physics, ActionType, ObservationType
+import pybullet as p
+import random
+
+
+GLB_RANDOM = str(random.randint(1,5000000))
 
 class HoverAviary(BaseRLAviary):
     """Single agent RL problem: hover at position."""
@@ -147,12 +152,12 @@ class HoverAviary_eval(HoverAviary):
                  obs: ObservationType=ObservationType.KIN,
                  act: ActionType=ActionType.RPM
                  ):
-        
         self.counter = 0
         self.TARGET_POS = target_pos
         self.EPISODE_LEN_SEC = 8        
         super().__init__(
                             record=record,
+                            gui=gui,
                             obs=obs,
                             act=act
                             )
@@ -202,6 +207,7 @@ class HoverAviary_eval(HoverAviary):
 
         """
         self.counter += 1
+        
         if self.RECORD and self.GUI:
             self.VIDEO_ID = p.startStateLogging(loggingType=p.STATE_LOGGING_VIDEO_MP4,
                                                 fileName=os.path.join(self.OUTPUT_FOLDER, "video-"+datetime.now().strftime("%m.%d.%Y_%H.%M.%S")+".mp4"),
@@ -209,7 +215,7 @@ class HoverAviary_eval(HoverAviary):
                                                 )
         if self.RECORD and not self.GUI:
             self.FRAME_NUM = 0
-            self.IMG_PATH = os.path.join(self.OUTPUT_FOLDER, "recording_" + str(self.counter))
+            self.IMG_PATH = os.path.join(self.OUTPUT_FOLDER, "recording_" + str(self.counter) +"_"+str(GLB_RANDOM))
             os.makedirs(self.IMG_PATH, exist_ok=True)
     
     ################################################################################
